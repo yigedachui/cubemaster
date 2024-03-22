@@ -24,6 +24,7 @@ public class CubeManager : MonoBehaviour
 
     private void Awake()
     {
+        matchedCubes = new List<LinkedListNode<Cube>>();
         int TotalCubes = height * width * depth;
         cubeList = new List<Cube>(TotalCubes);
 
@@ -103,7 +104,11 @@ public class CubeManager : MonoBehaviour
                 MatchedCount++;
                 if (MatchedCount == 3)
                 {
-                    LinkedHead.AddAfter(matchedCubes[0], matchedCubes[2]);
+                    for (int i = 0; i < matchedCubes.Count; i++)
+                    {
+                        LinkedHead.Remove(matchedCubes[i]);
+                    }
+                    matchedCubes.Clear();
                     return true;
                 }
             }
@@ -129,7 +134,6 @@ public class CubeManager : MonoBehaviour
                 for (int x = 0; x < width; x++)
                 {
                     int i = TierNum + (z * width + x);
-                    Debug.Log(i);
                     Cube cube = cubeList[i];
 
                     cube.transform.SetParent(CubeHandler, true);

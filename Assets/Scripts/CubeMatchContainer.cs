@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 public class CubeMatchContainer
 {
@@ -85,6 +86,12 @@ public class CubeMatchContainer
             if (OnMatchEvent(LinkedHead))
             {
                 CurrentIndex -= 3;
+
+                //foreach (var item in LinkedHead)
+                //{
+                //    UnityEngine.Debug.Log(item.data.type);
+                //}
+
             }
         }
     }
