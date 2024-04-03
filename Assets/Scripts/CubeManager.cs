@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
-using System.Text.RegularExpressions;
 
 public class CubeManager : MonoBehaviour
 {
@@ -18,13 +16,11 @@ public class CubeManager : MonoBehaviour
     public float repeatPercentage = 0.28f;
 
     public Cube[,,] cubes;
-    private List<Cube> cubeList;
-    public List<LinkedListNode<Cube>> matchedCubes;
-    CubeMatchContainer matchContainer;
+    public List<Cube> cubeList;
+
 
     private void Awake()
     {
-        matchedCubes = new List<LinkedListNode<Cube>>();
         int TotalCubes = height * width * depth;
         cubeList = new List<Cube>(TotalCubes);
 
@@ -45,6 +41,7 @@ public class CubeManager : MonoBehaviour
                 GameObject cubeObj = Instantiate(cubePrefa);
                 Cube cube = cubeObj.GetComponent<Cube>();
                 cube.data.type = type;
+                cubeObj.name = cube.data.type.ToString();
                 cube.SetCubeColor();
                 cubeList.Add(cube);
             }
@@ -59,68 +56,55 @@ public class CubeManager : MonoBehaviour
         }
 
         StartCoroutine(SpawnCube());
-        matchContainer = new CubeMatchContainer();
-        matchContainer.OnMatchEvent += OnMatchedEvent;
+
     }
 
     private void FixedUpdate()
     {
         if (Input.touchCount > 0)
         {
-            ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            Touch touch = Input.GetTouch(0);
+            switch (touch.phase)
+            {
+                case TouchPhase.Ended:
+                    ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+                    if (Physics.Raycast(ray, out RaycastHit hitInfo, 1 << LayerMask.NameToLayer("Cube")))
+                    {
+                        GameObject obj = hitInfo.collider.gameObject;
+                        Debug.Log(obj.name);
+                        if (obj)
+                        {
+                            Cube cube = obj.GetComponent<Cube>();
+                            cube.GetComponent<BoxCollider>().enabled = false;
+                            CubeContainer.Instance.AddCube(cube);
+                        }
+                    }
+                    break;
+                case TouchPhase.Canceled:
+                    break;
+                default:
+                    break;
+            }
+
         }
-        else if (Input.GetMouseButtonDown(0)) 
+        else if (Input.GetMouseButtonDown(0))
         {
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+           
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
             if (Physics.Raycast(ray, out RaycastHit hitInfo, 1 << LayerMask.NameToLayer("Cube")))
             {
                 GameObject obj = hitInfo.collider.gameObject;
+                //Debug.Log(obj.name);
                 if (obj)
                 {
-                    Cube cube = obj.GetComponent<Cube>();
-                    matchContainer.AddCube(cube);
+                    Cube cube = obj.GetComponent<Cube>();                    
+                    CubeContainer.Instance.AddCube(cube);
                 }
             }
-        }                
-    }
-
-    private bool OnMatchedEvent(LinkedList<Cube> LinkedHead)
-    {
-        int MatchedCount = 0;
-        if (LinkedHead.Count < 3)
-        {
-            return false;
         }
-
-        LinkedListNode<Cube> fast;
-        LinkedListNode<Cube> late = fast = LinkedHead.First;
-
-        while (fast != null)
-        {
-            if (late.Value.data.type == fast.Value.data.type)
-            {
-                matchedCubes.Add(fast);
-                fast = fast.Next;                
-                MatchedCount++;
-                if (MatchedCount == 3)
-                {
-                    for (int i = 0; i < matchedCubes.Count; i++)
-                    {
-                        LinkedHead.Remove(matchedCubes[i]);
-                    }
-                    matchedCubes.Clear();
-                    return true;
-                }
-            }
-            else
-            {
-                late = fast;
-                fast = late.Next;
-                MatchedCount = 0;
-                matchedCubes.Clear();
-            }            
-        }
-        return false;
     }
 
     public IEnumerator SpawnCube()

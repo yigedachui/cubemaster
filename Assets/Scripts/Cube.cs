@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using DG.Tweening;
 
 public class Cube : MonoBehaviour
 {
@@ -9,6 +10,21 @@ public class Cube : MonoBehaviour
     {
         data = new CubeData();
         render = GetComponent<Renderer>();
+    }
+
+    public bool IsSameType(Cube cube)
+    {
+        return cube.data.type == this.data.type;
+    }
+
+    public void MovePosition(Vector3 target)
+    {
+        transform.SetParent(null);
+        transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+        transform.localRotation = Quaternion.identity;
+        //Quaternion q = transform.localRotation;
+        //transform.localRotation = Quaternion.Lerp(q, Quaternion.identity,0.3f);  
+        transform.DOMove(target + new Vector3(0, 0.5f, 0), 0.5f);
     }
 
     public void SetCubeColor()
@@ -46,8 +62,7 @@ public class Cube : MonoBehaviour
                 data.color = Color.yellow;
                 break;
         }
-
+        //ColorUtility.TryParseHtmlString(hexColor, out color);
         render.material.color = data.color;
     }
-
 }
