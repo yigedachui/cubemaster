@@ -10,9 +10,7 @@ public class CubeEditorData
     public int y;
     public int z;
     public int total;
-
     public int[][][] cubeMap;
-    public GameObject[][][] cubesObj;
 
     public int this[int x, int y, int z]
     {
@@ -44,16 +42,13 @@ public class CubeEditorData
             this.z = z;
 
             cubeMap = new int[x][][];
-            cubesObj = new GameObject[x][][];
 
             for (int i = 0; i < x; i++)
             {
                 cubeMap[i] = new int[y][];
-                cubesObj[i] = new GameObject[y][];
                 for (int j = 0; j < y; j++)
                 {
                     cubeMap[i][j] = new int[z];
-                    cubesObj[i][j] = new GameObject[z];
                 }
             }
         }
